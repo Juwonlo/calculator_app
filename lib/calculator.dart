@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
+import 'package:calculator_app/common.dart';
 
 class Calculator extends StatefulWidget {
   @override
@@ -6,12 +8,52 @@ class Calculator extends StatefulWidget {
 }
 
 class _CalculatorState extends State<Calculator> {
-  Widget _renderDisplayScreen() {
+  String userInput = "";
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void submitInput(String input) {
+    setState(() {
+      userInput = "$userInput$input";
+    });
+  }
+
+  void clearUserInput() {
+    setState(() {
+      userInput = "";
+    });
+  }
+
+  void calculate() {
+    try {
+      Parser p = Parser();
+      Expression exp = p.parse(userInput);
+      ContextModel cm = ContextModel();
+      double eval = exp.evaluate(EvaluationType.REAL, cm);
+      String answer = eval.toString();
+      setState(() {
+        userInput = int.parse(answer).toString();
+      });
+    } catch (e) {
+      error(context, 'Error in calculation');
+    }
+  }
+
+  Widget _renderDisplayScreen(userInput) {
     return Container(
-        color: Colors.black26,
-        width: MediaQuery.of(context).copyWith().size.width,
-        height: MediaQuery.of(context).copyWith().size.height * 0.3,
-        child: SizedBox());
+      color: Colors.black26,
+      width: MediaQuery.of(context).copyWith().size.width,
+      height: MediaQuery.of(context).copyWith().size.height * 0.3,
+      padding: EdgeInsets.symmetric(vertical: 25.0),
+      child: Container(
+          alignment: Alignment.bottomRight,
+          color: Colors.white,
+          child: Text("$userInput",
+              style: TextStyle(color: Colors.grey, fontSize: 40.0))),
+    );
   }
 
   Widget _renderName() {
@@ -35,50 +77,104 @@ class _CalculatorState extends State<Calculator> {
           children: [
             Row(
               children: [
-                _inputButton(Text('√', style: textStyle), () {}),
-                _inputButton(Text('%', style: textStyle), () {}),
-                _inputButton(Icon(Icons.history, size: 30,), () {}),
-                _inputButton(Text('Clear'), () {}),
+                _inputButton(Text('√', style: textStyle), () {
+                  submitInput('√');
+                }),
+                _inputButton(Text('%', style: textStyle), () {
+                  submitInput('%');
+                }),
+                _inputButton(
+                    Icon(
+                      Icons.history,
+                      size: 30,
+                    ),
+                    () {}),
+                _inputButton(Text('Clear'), () {
+                  clearUserInput();
+                }),
               ],
             ),
             Row(
               children: [
-                _inputButton(Text('∧2', style: textStyle), () {}),
-                _inputButton(Text('∧', style: textStyle), () {}),
-                _inputButton(Text('(', style: textStyle), () {}),
-                _inputButton(Text(')', style: textStyle), () {}),
+                _inputButton(Text('∧2', style: textStyle), () {
+                  submitInput('^2');
+                }),
+                _inputButton(Text('∧', style: textStyle), () {
+                  submitInput('^');
+                }),
+                _inputButton(Text('(', style: textStyle), () {
+                  submitInput('(');
+                }),
+                _inputButton(Text(')', style: textStyle), () {
+                  submitInput(')');
+                }),
               ],
             ),
             Row(
               children: [
-                _inputButton(Text('1', style: textStyle), () {}),
-                _inputButton(Text('2', style: textStyle), () {}),
-                _inputButton(Text('3', style: textStyle), () {}),
-                _inputButton(Text('+', style: textStyle), () {}),
+                _inputButton(Text('1', style: textStyle), () {
+                  submitInput('1');
+                }),
+                _inputButton(Text('2', style: textStyle), () {
+                  submitInput('2');
+                }),
+                _inputButton(Text('3', style: textStyle), () {
+                  submitInput('3');
+                }),
+                _inputButton(Text('+', style: textStyle), () {
+                  submitInput('+');
+                }),
               ],
             ),
             Row(
               children: [
-                _inputButton(Text('4', style: textStyle), () {}),
-                _inputButton(Text('5', style: textStyle), () {}),
-                _inputButton(Text('6', style: textStyle), () {}),
-                _inputButton(Text('‒', style: textStyle), () {}),
+                _inputButton(Text('4', style: textStyle), () {
+                  submitInput('4');
+                }),
+                _inputButton(Text('5', style: textStyle), () {
+                  submitInput('5');
+                }),
+                _inputButton(Text('6', style: textStyle), () {
+                  submitInput('6');
+                }),
+                _inputButton(Text('‒', style: textStyle), () {
+                  submitInput('-');
+                }),
               ],
             ),
             Row(
               children: [
-                _inputButton(Text('7', style: textStyle), () {}),
-                _inputButton(Text('8', style: textStyle), () {}),
-                _inputButton(Text('9', style: textStyle), () {}),
-                _inputButton(Text('✕', style: textStyle), () {}),
+                _inputButton(Text('7', style: textStyle), () {
+                  submitInput('7');
+                }),
+                _inputButton(Text('8', style: textStyle), () {
+                  submitInput('8');
+                }),
+                _inputButton(Text('9', style: textStyle), () {
+                  submitInput('9');
+                }),
+                _inputButton(Text('✕', style: textStyle), () {
+                  submitInput('*');
+                }),
               ],
             ),
             Row(
               children: [
-                _inputButton(Icon(Icons.arrow_back, size: 30,), () {}),
-                _inputButton(Text('0', style: textStyle), () {}),
-                _inputButton(Text('=', style: textStyle), () {}),
-                _inputButton(Text('÷', style: textStyle), () {}),
+                _inputButton(
+                    Icon(
+                      Icons.arrow_back,
+                      size: 30,
+                    ),
+                    () {}),
+                _inputButton(Text('0', style: textStyle), () {
+                  submitInput('0');
+                }),
+                _inputButton(Text('=', style: textStyle), () {
+                  calculate();
+                }),
+                _inputButton(Text('÷', style: textStyle), () {
+                  submitInput('/');
+                }),
               ],
             ),
           ],
@@ -108,7 +204,7 @@ class _CalculatorState extends State<Calculator> {
       body: Column(
         children: [
           // render screen
-          _renderDisplayScreen(),
+          _renderDisplayScreen(userInput),
 
           // render calaculator title
           _renderName(),
